@@ -1,11 +1,11 @@
 package com.ncs.ivh.flow.test.util;
 
 import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -16,6 +16,7 @@ import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,6 +77,35 @@ public final class HttpClientUtil
         resultString = EntityUtils.toString(response.getEntity(), "utf-8");
         releaseResource(httpClient, response);
         return resultString;
+    }
+
+    public static String doPut(String url, Map<String, String> params) throws Exception
+    {
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        CloseableHttpResponse response = null;
+        String resultString = "";
+        HttpPut httpPut = new HttpPut(url);
+        if (params != null)
+        {
+            List<NameValuePair> paramList = new ArrayList<NameValuePair>();
+            for (String key : params.keySet())
+            {
+                paramList.add(new BasicNameValuePair(key, params.get(key)));
+            }
+            UrlEncodedFormEntity entity = new UrlEncodedFormEntity(paramList, "utf-8");
+            httpPut.setEntity(entity);
+        }
+        response = httpClient.execute(httpPut);
+        resultString = EntityUtils.toString(response.getEntity(), "utf-8");
+        releaseResource(httpClient, response);
+        return resultString;
+    }
+
+
+    public static String doFormData(String url,File file,Map<String,String> params){
+        String result = null;
+
+        return result;
     }
 
 

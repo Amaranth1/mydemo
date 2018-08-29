@@ -65,7 +65,7 @@
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-sidebar">
-                <li class="active"><a href="#">Overview <span class="sr-only">(current)</span></a></li>
+                <li><a href="/flow/overView" onclick="return false">Overview <span class="sr-only">(current)</span></a></li>
                 <li><a href="/flow/events" onclick="return false">Events</a></li>
                 <li><a href="/flow/analytics" onclick="return false">Analytics</a></li>
                 <li><a href="#" onclick="return false">Flow</a></li>
@@ -93,6 +93,8 @@
             var src = $(this).children("a").attr("href");
             $("#content").attr("src",src);
         })
+
+        $(".nav-sidebar li").first().click();
     })
 
 </script>
