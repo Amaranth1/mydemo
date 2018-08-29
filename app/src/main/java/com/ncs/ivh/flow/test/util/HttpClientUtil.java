@@ -1,5 +1,7 @@
 package com.ncs.ivh.flow.test.util;
 
+import org.apache.http.Consts;
+import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -8,13 +10,19 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.client.MultipartBodyBuilder;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.net.URI;
@@ -102,9 +110,26 @@ public final class HttpClientUtil
     }
 
 
-    public static String doFormData(String url,File file,Map<String,String> params){
+    public static String doFormData(String url, File file, Map<String,String> params) throws Exception{
         String result = null;
-
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        CloseableHttpResponse response = null;
+        HttpPost httpPost = new HttpPost(url);
+       // FileBody fileBody = new FileBody(file);
+        MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
+        //multipartEntityBuilder.addPart("file",fileBody);
+        multipartEntityBuilder.addBinaryBody("file",file,ContentType.DEFAULT_BINARY,file.getName());
+        for (String key:params.keySet()){
+//            StringBody stringBody = new StringBody(params.get(key),ContentType.create("text/plain", Consts.UTF_8));
+//            multipartEntityBuilder.addPart(key,stringBody);
+            multipartEntityBuilder.addTextBody(key,params.get(key),ContentType.TEXT_PLAIN);
+        }
+        HttpEntity httpEntity = multipartEntityBuilder.build();
+        httpPost.setEntity(httpEntity);
+        response = httpClient.execute(httpPost);
+        result = EntityUtils.toString(response.getEntity(),Consts.UTF_8);
+        EntityUtils.consume(httpEntity);
+        releaseResource(httpClient,response);
         return result;
     }
 
@@ -137,7 +162,7 @@ public final class HttpClientUtil
 
     public static void main(String[] args)
     {
-        String url = "http://localhost:8088/apis/getAllModules";
+        String url = "http://10.10.226.77:25030/info";
         try
         {
             String result = HttpClientUtil.doGet(url, null);
